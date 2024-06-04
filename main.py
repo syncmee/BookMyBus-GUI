@@ -12,7 +12,7 @@ current_month = current_date.month
 current_day = current_date.day
 
 email = "bookmybus.info@gmail.com"
-mail_password = "yxfw xcmz othz yzdo"
+mail_password = "#### #### #### ####"
 
 #Login Page
 ### Functions
