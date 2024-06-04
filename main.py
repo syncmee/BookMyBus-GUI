@@ -5,8 +5,13 @@ import smtplib
 from datetime import *
 import pandas as pd
 import random
+from tkcalendar import DateEntry
 
 current_date = datetime.today().replace(microsecond=0)
+current_year = current_date.year
+current_month = current_date.month
+current_day = current_date.day
+
 email = "bookmybus.info@gmail.com"
 mail_password = "yxfw xcmz othz yzdo"
 
@@ -58,11 +63,12 @@ def existing_user():
 login_page = Tk()
 login_page.title("Book My Bus")
 login_page.config(padx=50,pady=50)
+login_page.eval('tk::PlaceWindow . center')
 
 ### Logo
-img = PhotoImage(file="logo.png")
-canvas = Canvas(width=225, height=225, highlightthickness=0)
-canvas.create_image(115,115, image= img)
+img = PhotoImage(file="logo2.png")
+canvas = Canvas(width=500, height=278, highlightthickness=0)
+canvas.create_image(250,139, image= img)
 canvas.grid(row=0,column=1)
 
 ### Label
@@ -89,10 +95,22 @@ login_page.mainloop()
 
 
 # User Panel
+# funcitons
+def to_booking_page():
+    userpage.destroy()
+def to_cancel_page():
+    userpage.destroy()
+    booking_page.destroy()
+def to_check_pnr():
+    userpage.destroy()
+    booking_page.destroy()
+    cancel_page.destroy()
+
 ### Window
 userpage = Tk()
 userpage.title("Book My Bus")
 userpage.config(padx=50,pady=50)
+userpage.eval('tk::PlaceWindow . center')
 
 ### Logo
 img = PhotoImage(file="logo.png")
@@ -101,10 +119,11 @@ canvas.create_image(115,115, image= img)
 canvas.grid(row=0,column=1)
 
 ### Buttons
-book_ticket = Button(text="Book Ticket",width=10,command=userpage.destroy)
+book_ticket = Button(text="Book Ticket",width=10,command=to_booking_page)
 book_ticket.grid(row=1,column=1)
 
-cancel_ticket = Button(text="Cancel Ticket",width=10)
+cancel_ticket = Button(text="Cancel Ticket",width=10,command=userpage.destroy)
+cancel_ticket.config(command=booking_page.destroy)
 cancel_ticket.grid(row=2,column=1)
 
 check_pnr = Button(text="PNR Status",width=10)
@@ -114,6 +133,7 @@ userpage.mainloop()
 
 
 # Book Ticket
+
 ### functions
 def book():
     if len(name_entry.get()) == 0 or len(mail_entry.get()) == 0 or len(age_entry.get()) == 0:
@@ -126,7 +146,7 @@ def book():
                                               f"Age: {age_entry.get()}\n"
                                               f"From: {clicked.get()}\n"
                                               f"To: {clicked1.get()}\n"
-                                              f"Departure: {date_entry.get()}\n"
+                                              f"Departure: {selected_date}\n"
                                               f"E-Mail: {mail_entry.get()}\n"                                               
                                               f"Do you want to continue?")
         if isok:
@@ -137,7 +157,7 @@ def book():
                 name = name_entry.get().title()
                 formatted_email = booking_mail.replace('[NAME]', name).replace('[AGE]', str(age_entry.get())).replace(
                     '[SOURCE]', clicked.get()).replace(
-                    '[DESTINATION]', clicked1.get()).replace('[DATE]', str(date_entry.get())).replace('[PNR]', pnr)
+                    '[DESTINATION]', clicked1.get()).replace('[DATE]', str(selected_date)).replace('[PNR]', pnr)
                 connection.starttls()
                 connection.login(user=email, password=mail_password)
                 connection.sendmail(from_addr=email,
@@ -153,7 +173,7 @@ def book():
                 'age': [age_entry.get()],
                 'source': [clicked.get()],
                 'destination': [clicked1.get()],
-                'travel_data': [date_entry.get()],
+                'travel_data': [selected_date],
                 'email': [mail_entry.get()]
             }
             # Make data frame of above data
@@ -165,16 +185,16 @@ def book():
             booking_page.destroy()
 
 
-
 ### Window
 booking_page = Tk()
 booking_page.title("Book My Bus")
 booking_page.config(padx=50,pady=50)
+booking_page.eval('tk::PlaceWindow . center')
 
 ### Logo
-img = PhotoImage(file="logo.png")
-canvas = Canvas(width=225, height=225, highlightthickness=0)
-canvas.create_image(115,115, image= img)
+img = PhotoImage(file="logo2.png")
+canvas = Canvas(width=500, height=278, highlightthickness=0)
+canvas.create_image(250,139, image= img)
 canvas.grid(row=0,column=1)
 
 ### Labels
@@ -212,15 +232,8 @@ source = [
     "West Bengal",
     "Sikkim"
 ]
-
-
-# datatype of menu text
 clicked = StringVar()
-
-# initial menu text
 clicked.set( "Delhi" )
-
-# Create Dropdown menu
 drop = OptionMenu( booking_page , clicked , *source)
 drop.grid(row=3,column=1)
 drop.config(width=17)
@@ -239,21 +252,22 @@ destination = [
     "West Bengal",
     "Sikkim"
 ]
-
-# datatype of menu text
 clicked1 = StringVar()
-
-# initial menu text
 clicked1.set( "Ladakh" )
-
-# Create Dropdown menu
 drop = OptionMenu( booking_page , clicked1 , *destination)
 drop.grid(row=4,column=1)
 drop.config(width=17)
 
-date_entry = Entry(width=24)
+
+def get_selected_date():
+    global selected_date
+    selected_date = date_entry.get()
+
+date_entry = DateEntry(booking_page, width=20, year=current_year, month=current_month, day=current_day, background='green', foreground='red', borderwidth=2)
 date_entry.grid(row=5,column=1)
-date_entry.insert(END, "DD-MM-YYYY")
+date_button = Button(text="✓",command=get_selected_date)
+date_button.grid(row=5,column=2)
+
 
 mail_entry = Entry(width=24)
 mail_entry.grid(row=6,column=1)
@@ -263,5 +277,86 @@ mail_entry.grid(row=6,column=1)
 confirm = Button(text="Book Ticket",width=20,command=book)
 confirm.grid(column=1, row=7, columnspan=2)
 
-
 booking_page.mainloop()
+
+
+# Cancel Page
+
+### functions
+def cancel():
+    cancel_name = cancel_name_entry.get()
+    cancel_pnr = pnr_entry.get()
+    passenger_list = pd.read_csv("passenger.csv")
+    names = passenger_list.name.to_list()
+    pnrs = passenger_list.pnr.to_list()
+    if cancel_name in names and cancel_pnr in pnrs:
+        if len(cancel_pnr) == 0 or len(cancel_name) == 0:
+            messagebox.showerror(title="Error", message="Fields are empty. "
+                                                        "\nPlease fill all the details before saving.")
+        else:
+            isok = messagebox.askokcancel(title="Cancel Ticket Information",
+                                          message=f"These are the details entered\n"
+                                                  f"PNR: {cancel_pnr}\n"
+                                                  f"Name: {cancel_name}")
+            if isok:
+                filtered_data = passenger_list[passenger_list['pnr'] == cancel_pnr]
+                user_email = filtered_data["email"].tolist()[0]
+                user_name = filtered_data["name"].tolist()[0]
+                age = filtered_data["age"].tolist()[0]
+                source = filtered_data["source"].tolist()[0]
+                destination = filtered_data["destination"].tolist()[0]
+                travel_date = filtered_data["travel_date"].tolist()[0]
+                df = passenger_list.drop(passenger_list[passenger_list['pnr'] == cancel_pnr].index)
+                df.to_csv("passenger.csv", mode="w", index=False)
+                messagebox.showinfo(title="BookMyBus",message="Ticket is cancelled")
+
+
+                with open("cancel_ticket.txt") as bm:
+                    cancel_mail = bm.read()
+                with smtplib.SMTP("smtp.gmail.com") as connection:
+                    name = user_name.title()
+                    formatted_email = cancel_mail.replace('[NAME]', name).replace('[AGE]',
+                                                                                   str(age)).replace(
+                        '[SOURCE]',source).replace(
+                        '[DESTINATION]', destination).replace('[DATE]', travel_date).replace('[PNR]', cancel_pnr)
+                    connection.starttls()
+                    connection.login(user=email, password=mail_password)
+                    connection.sendmail(from_addr=email,
+                                        to_addrs=user_email,
+                                        msg=f"Subject:Bus Booking Cancellation - BookMyBus \n\n"
+                                            f"Dear {name},\n\nThis email confirms the cancellation of your bus ticket booking with BookMyBus (PNR: [PNR]) on {current_date}\n\n"
+                                            f"{formatted_email}")
+    else:
+        messagebox.showerror(title="Error",message="No Ticket Found. Please Check again")
+### Window
+cancel_page = Tk()
+cancel_page.title("Book My Bus")
+cancel_page.config(padx=50,pady=50)
+cancel_page.eval('tk::PlaceWindow . center')
+
+### Logo
+img = PhotoImage(file="logo2.png")
+canvas = Canvas(width=500, height=278, highlightthickness=0)
+canvas.create_image(250,139, image= img)
+canvas.grid(row=0,column=1)
+
+### Label
+pnr = Label(text="PNR Number:")
+pnr.grid(column=0,row=1)
+name = Label(text="Name:")
+name.grid(column=0,row=2)
+
+### Buttons
+cancel = Button(text="Cancel",width=15,command=cancel)
+cancel.grid(column=2, row=1, columnspan=2)
+
+
+### Text-Inputs
+pnr_entry = Entry(width=22)
+pnr_entry.grid(row=1,column=1)
+pnr_entry.focus()
+cancel_name_entry = Entry(width=22)
+cancel_name_entry.grid(row=2,column=1)
+
+
+cancel_page.mainloop()

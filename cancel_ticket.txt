@@ -1,0 +1,22 @@
+Booking Details:
+
+Passenger Name: [NAME]
+Booking PNR: [PNR]
+Age: [AGE]
+Source: [SOURCE]
+Destination: [DESTINATION]
+Travel Date: [DATE]
+We understand that plans change, and we apologize for any inconvenience caused by this cancellation.
+
+
+Please refer to our cancellation policy on our website to understand any applicable cancellation fees.
+If you are eligible for a refund, we will process it within 7 business days to the original payment method used for booking.
+
+Need Help?
+If you have any questions or require further assistance regarding your cancellation, please feel free to contact our support team at bookmybus.info@gmail.com.
+
+We appreciate your understanding.
+
+Sincerely,
+
+BookMyBus Team
