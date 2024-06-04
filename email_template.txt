@@ -1,0 +1,17 @@
+Thank you for booking your bus journey with us. Here are your booking details:
+
+Booking PNR : [PNR]
+Passenger Name: [NAME]
+Age: [AGE]
+Source: [SOURCE]
+Destination: [DESTINATION]
+Travel Date: [DATE]
+
+Please ensure to carry a copy of this email and a valid ID proof while boarding the bus.
+
+For any queries or assistance, feel free to contact our support team at bookmybus.info@gmail.com.
+
+We wish you a pleasant journey!
+
+Best regards,
+BookMyBus Team
