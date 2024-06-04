@@ -5,6 +5,7 @@ from datetime import datetime
 import pandas as pd
 import random
 from tkcalendar import DateEntry
+
 from twilio.rest import Client
 
 
@@ -15,8 +16,8 @@ current_year = current_date.year
 current_month = current_date.month
 current_day = current_date.day
 
-email = "### email id ###"
-mail_password = "### email auth token ###"
+email = "bookmybus.info@gmail.com"
+mail_password = "yxfw xcmz othz yzdo"
 
 #Login Page
 ### Functions
@@ -186,8 +187,8 @@ def book_ticket_page(booking_page):
                 df = pd.DataFrame(data)
                 # append data frame to CSV file
                 df.to_csv('passenger.csv', mode='a', index=False, header=False)
-                account_sid = '### twillio accound sid ###'
-                auth_token = '### twillio auth token ###'
+                account_sid = 'ACb03858ea1c7e8285e0ad7c598465cde4'
+                auth_token = '0141fa636f585d8b31a25d7c19eb1825'
                 client = Client(account_sid, auth_token)
                 client.messages.create(
                     from_='+19403267061',
