@@ -1,4 +1,3 @@
-import datetime
 from tkinter import *
 from tkinter import messagebox
 import smtplib
@@ -63,7 +62,6 @@ def existing_user():
 login_page = Tk()
 login_page.title("Book My Bus")
 login_page.config(padx=50,pady=50)
-login_page.eval('tk::PlaceWindow . center')
 
 ### Logo
 img = PhotoImage(file="logo2.png")
@@ -108,9 +106,9 @@ def to_check_pnr():
 
 ### Window
 userpage = Tk()
-userpage.title("Book My Bus")
+userpage.title("User Panel -BookMyBus")
 userpage.config(padx=50,pady=50)
-userpage.eval('tk::PlaceWindow . center')
+
 
 ### Logo
 img = PhotoImage(file="logo.png")
@@ -123,7 +121,6 @@ book_ticket = Button(text="Book Ticket",width=10,command=to_booking_page)
 book_ticket.grid(row=1,column=1)
 
 cancel_ticket = Button(text="Cancel Ticket",width=10,command=userpage.destroy)
-cancel_ticket.config(command=booking_page.destroy)
 cancel_ticket.grid(row=2,column=1)
 
 check_pnr = Button(text="PNR Status",width=10)
@@ -142,7 +139,7 @@ def book():
     else:
         isok = messagebox.askokcancel(title="Book Ticket Information",
                                       message=f"These are the details entered\n"
-                                              f"Name: {name_entry.get()} \n"
+                                              f"Name: {name_entry.get().title()} \n"
                                               f"Age: {age_entry.get()}\n"
                                               f"From: {clicked.get()}\n"
                                               f"To: {clicked1.get()}\n"
@@ -187,9 +184,8 @@ def book():
 
 ### Window
 booking_page = Tk()
-booking_page.title("Book My Bus")
+booking_page.title("Book Ticket -BookMyBus")
 booking_page.config(padx=50,pady=50)
-booking_page.eval('tk::PlaceWindow . center')
 
 ### Logo
 img = PhotoImage(file="logo2.png")
@@ -284,7 +280,7 @@ booking_page.mainloop()
 
 ### functions
 def cancel():
-    cancel_name = cancel_name_entry.get()
+    cancel_name = cancel_name_entry.get().title()
     cancel_pnr = pnr_entry.get()
     passenger_list = pd.read_csv("passenger.csv")
     names = passenger_list.name.to_list()
@@ -324,15 +320,18 @@ def cancel():
                     connection.sendmail(from_addr=email,
                                         to_addrs=user_email,
                                         msg=f"Subject:Bus Booking Cancellation - BookMyBus \n\n"
-                                            f"Dear {name},\n\nThis email confirms the cancellation of your bus ticket booking with BookMyBus (PNR: [PNR]) on {current_date}\n\n"
+                                            f"Dear {name},\n\nThis email confirms the cancellation of your bus ticket booking with BookMyBus "
+                                            f"(PNR: {cancel_pnr}) on {current_date}\n\n"
                                             f"{formatted_email}")
+                cancel_page.destroy()
     else:
-        messagebox.showerror(title="Error",message="No Ticket Found. Please Check again")
+        messagebox.showerror(title="Error",message="Ticket Not Found.\n"
+                                                   "Please Check again")
 ### Window
 cancel_page = Tk()
-cancel_page.title("Book My Bus")
+cancel_page.title("Cancel Ticket -BookMyBus")
 cancel_page.config(padx=50,pady=50)
-cancel_page.eval('tk::PlaceWindow . center')
+
 
 ### Logo
 img = PhotoImage(file="logo2.png")
@@ -358,5 +357,67 @@ pnr_entry.focus()
 cancel_name_entry = Entry(width=22)
 cancel_name_entry.grid(row=2,column=1)
 
-
 cancel_page.mainloop()
+
+# Check Status
+### functions
+def check_status():
+    pnr_check = status_pnr.get()
+    status_name = status_name_entry.get().title()
+    passenger_list = pd.read_csv("passenger.csv")
+    names = passenger_list.name.to_list()
+    pnr_list = passenger_list.pnr.to_list()
+    if status_name in names and pnr_check in pnr_list:
+        if len(pnr_check) == 0 or len(status_name) == 0:
+            messagebox.showerror(title="Error", message="Fields are empty. "
+                                                        "\nPlease fill all the details before saving.")
+        else:
+            filtered_data = passenger_list[passenger_list['pnr'] == pnr_check]
+            user_email = filtered_data["email"].tolist()[0]
+            user_name = filtered_data["name"].tolist()[0]
+            age = filtered_data["age"].tolist()[0]
+            source = filtered_data["source"].tolist()[0]
+            destination = filtered_data["destination"].tolist()[0]
+            travel_date = filtered_data["travel_date"].tolist()[0]
+            messagebox.showinfo(title="Ticket Information",message=f"Ticket Found\n"
+                                                                   f"Name: {user_name}\n"
+                                                                   f"Age: {age}\n"
+                                                                   f"From: {source}\n"
+                                                                   f"To: {destination}\n"
+                                                                   f"Departure: {travel_date}\n"
+                                                                   f"Mail: {user_email}")
+    else:
+        messagebox.showerror(title="Error",message="Ticket Not Found.\n"
+                                                   "Please enter correct information")
+
+### Window
+status = Tk()
+status.title("Check Status -BookMyBus")
+status.config(padx=50,pady=50)
+
+
+### Logo
+img = PhotoImage(file="logo2.png")
+canvas = Canvas(width=500, height=278, highlightthickness=0)
+canvas.create_image(250,139, image= img)
+canvas.grid(row=0,column=1)
+
+### Label
+pnr = Label(text="PNR Number:")
+pnr.grid(column=0,row=1)
+name = Label(text="Name:")
+name.grid(column=0,row=2)
+
+### Buttons
+check = Button(text="Check",width=15,command=check_status)
+check.grid(column=2, row=1, columnspan=2)
+
+
+### Text-Inputs
+status_pnr = Entry(width=22)
+status_pnr.grid(row=1,column=1)
+status_pnr.focus()
+status_name_entry = Entry(width=22)
+status_name_entry.grid(row=2,column=1)
+
+status.mainloop()
