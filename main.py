@@ -5,7 +5,6 @@ from datetime import datetime
 import pandas as pd
 import random
 from tkcalendar import DateEntry
-
 from twilio.rest import Client
 
 
