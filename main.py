@@ -5,14 +5,18 @@ from datetime import datetime
 import pandas as pd
 import random
 from tkcalendar import DateEntry
+from twilio.rest import Client
+
+
+
 
 current_date = datetime.today().replace(microsecond=0)
 current_year = current_date.year
 current_month = current_date.month
 current_day = current_date.day
 
-email = "bookmybus.info@gmail.com"
-mail_password = "#### #### #### ####"
+email = "### email id ###"
+mail_password = "### email auth token ###"
 
 #Login Page
 ### Functions
@@ -21,25 +25,30 @@ def new_user():
     pw = password_entry.get()
     content = pd.read_csv("userdata.csv")
     x = content.username.to_list()
-    if user in x:
-        messagebox.showerror(title="Error", message="Username Already Exists. "
-                                                    "\nPlease choose a new username.")
+    if len(user) == 0 or len(pw) == 0:
+        messagebox.showerror(title="Error", message="Fields are empty. "
+                                                    "\nPlease fill all the details before saving.")
     else:
-        isok = messagebox.askokcancel(title="Confirm Details",
-                                      message=f"These are the details entered \nUsername:{user} \nPassword:{pw}")
-        if isok:
-            data = {
-                'username': [user],
-                'password': [pw]
-            }
+        if user in x:
+            messagebox.showerror(title="Error", message="Username Already Exists. "
+                                                        "\nPlease choose a new username.")
+        else:
+            isok = messagebox.askokcancel(title="Confirm Details",
+                                          message=f"These are the details entered \nUsername:{user} \nPassword:{pw}")
+            if isok:
+                data = {
+                    'username': [user],
+                    'password': [pw]
+                }
 
-            df = pd.DataFrame(data)
-            df.to_csv('userdata.csv', mode='a', index=False, header=False)
-            messagebox.showinfo(title="BookMyBus", message="User Added Successfully")
-            username_entry.delete(0, 'end')
-            password_entry.delete(0, 'end')
-            login_page.destroy()
-            user_panel()
+                df = pd.DataFrame(data)
+                df.to_csv('userdata.csv', mode='a', index=False, header=False)
+                messagebox.showinfo(title="BookMyBus", message="User Added Successfully")
+                username_entry.delete(0, 'end')
+                password_entry.delete(0, 'end')
+                login_page.destroy()
+
+
 
 def existing_user():
     user = username_entry.get()
@@ -52,6 +61,7 @@ def existing_user():
         username_entry.delete(0, 'end')
         password_entry.delete(0, 'end')
         login_page.destroy()
+
     else:
         messagebox.showerror(title="BookMyBus", message="Wrong Username or Password."
                                                         "\nPlease enter correct details.")
@@ -93,9 +103,9 @@ login_page.mainloop()
 # User Panel
 def user_panel():
     ### Functions
-    def to_booking_page():
-        userpage.destroy()
-        book_ticket_page()
+    def open_booking_page():
+        booking_page = Toplevel(userpage)
+        book_ticket_page(booking_page)
 
     def open_cancel_page():
         cancel_page = Toplevel(userpage)
@@ -117,7 +127,7 @@ def user_panel():
     canvas.grid(row=0, column=1)
 
     ### Buttons
-    book_ticket = Button(userpage, text="Book Ticket", width=10, command=to_booking_page)
+    book_ticket = Button(userpage, text="Book Ticket", width=10, command=open_booking_page)
     book_ticket.grid(row=1, column=1)
 
     cancel_ticket = Button(userpage, text="Cancel Ticket", width=10, command=open_cancel_page)
@@ -125,13 +135,13 @@ def user_panel():
 
     check_pnr = Button(userpage, text="PNR Status", width=10, command=open_check_pnr_page)
     check_pnr.grid(row=3, column=1)
-
     userpage.mainloop()
 
 # Book Ticket
-def book_ticket_page():
+def book_ticket_page(booking_page):
     ### Functions
     def book():
+        get_selected_date()
         if len(name_entry.get()) == 0 or len(mail_entry.get()) == 0 or len(age_entry.get()) == 0:
             messagebox.showerror(title="Error", message="Fields are empty. "
                                                         "\nPlease fill all the details before saving.")
@@ -176,17 +186,35 @@ def book_ticket_page():
                 df = pd.DataFrame(data)
                 # append data frame to CSV file
                 df.to_csv('passenger.csv', mode='a', index=False, header=False)
+                account_sid = '### twillio accound sid ###'
+                auth_token = '### twillio auth token ###'
+                client = Client(account_sid, auth_token)
+                client.messages.create(
+                    from_='+19403267061',
+                    body=f"Thank you for booking your bus journey with us. Here are your booking details:\n\n"
+                         f"Booking PNR : {pnr}\n"
+                         f"Passenger Name: {name_entry.get().title()}\n"
+                         f"Age: {age_entry.get()}\n"
+                         f"Source: {clicked.get()}\n"
+                         f"Destination: {clicked1.get()}\n"
+                         f"Travel Date: {selected_date}\n\n"
+                         f"Please ensure to carry a copy of this email and a valid ID proof while boarding the bus.\n\n"
+                         f"We wish you a pleasant journey!\n\n"
+                         f"Best regards,\n"
+                         "BookMyBus Team",
+                    to='+918810459229'
+                )
                 messagebox.showinfo(title="Ticket Information", message=f"PNR: {pnr}\n"
                                                                         f"Name: {name_entry.get()}")
                 booking_page.destroy()
-                user_panel()
+
+
 
     def get_selected_date():
         global selected_date
         selected_date = date_entry.get()
 
     ### Booking Window
-    booking_page = Tk()
     booking_page.title("Book Ticket -BookMyBus")
     booking_page.config(padx=50, pady=50)
 
@@ -256,15 +284,16 @@ def book_ticket_page():
 
     date_entry = DateEntry(booking_page, width=20, year=current_year, month=current_month, day=current_day, background='green', foreground='red', borderwidth=2)
     date_entry.grid(row=5, column=1)
-    date_button = Button(booking_page, text="✓", command=get_selected_date)
-    date_button.grid(row=5, column=2)
+    # date_button = Button(booking_page, text="Confirm Date", command=get_selected_date)
+    # date_button.grid(row=5, column=2)
 
     mail_entry = Entry(booking_page, width=24)
     mail_entry.grid(row=6, column=1)
 
     ### Buttons
     confirm = Button(booking_page, text="Book Ticket", width=20, command=book)
-    confirm.grid(column=1, row=7, columnspan=2)
+    confirm.grid(column=1, row=7)
+    confirm.config(width=20)
 
     booking_page.mainloop()
 
@@ -319,6 +348,7 @@ def cancel_ticket_page(cancel_page):
             messagebox.showerror(title="Error", message="Ticket Not Found.\n"
                                                         "Please Check again")
 
+
     ### Cancel Window
     cancel_page.title("Cancel Ticket -BookMyBus")
     cancel_page.config(padx=50, pady=50)
@@ -343,6 +373,7 @@ def cancel_ticket_page(cancel_page):
     pnr_entry = Entry(cancel_page, width=22)
     pnr_entry.grid(row=1, column=1)
     pnr_entry.focus()
+    pnr_entry.insert(END, "BMB")
     cancel_name_entry = Entry(cancel_page, width=22)
     cancel_name_entry.grid(row=2, column=1)
 
@@ -374,6 +405,7 @@ def check_status_page(check_pnr_page):
                                                                         f"To: {destination}\n"
                                                                         f"Departure: {travel_date}\n"
                                                                         f"Mail: {user_email}")
+                check_pnr_page.destroy()
         else:
             messagebox.showerror(title="Error", message="Ticket Not Found.\n"
                                                         "Please enter correct information")
@@ -402,9 +434,8 @@ def check_status_page(check_pnr_page):
     status_pnr = Entry(check_pnr_page, width=22)
     status_pnr.grid(row=1, column=1)
     status_pnr.focus()
+    status_pnr.insert(END, "BMB")
     status_name_entry = Entry(check_pnr_page, width=22)
     status_name_entry.grid(row=2, column=1)
 
-# Run the user panel after login
-# Uncomment below line to directly run the user panel for testing without login
 user_panel()
