@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 import smtplib
+from tkinter import ttk
 from datetime import datetime
 import pandas as pd
 import random
@@ -9,7 +10,7 @@ from twilio.rest import Client
 
 
 
-
+icon_path = "./icon.ico"
 current_date = datetime.today().replace(microsecond=0)
 current_year = current_date.year
 current_month = current_date.month
@@ -69,8 +70,10 @@ def existing_user():
         password_entry.delete(0, 'end')
 
 ### Login Window
+
 login_page = Tk()
 login_page.title("Book My Bus")
+login_page.wm_iconbitmap(icon_path)
 login_page.config(padx=50, pady=50)
 
 ### Logo
@@ -117,6 +120,7 @@ def user_panel():
 
     ### User Panel Window
     userpage = Tk()
+    userpage.wm_iconbitmap(icon_path)
     userpage.title("User Panel -BookMyBus")
     userpage.config(padx=50, pady=50)
 
@@ -215,6 +219,7 @@ def book_ticket_page(booking_page):
         selected_date = date_entry.get()
 
     ### Booking Window
+    booking_page.wm_iconbitmap(icon_path)
     booking_page.title("Book Ticket -BookMyBus")
     booking_page.config(padx=50, pady=50)
 
@@ -351,6 +356,7 @@ def cancel_ticket_page(cancel_page):
 
     ### Cancel Window
     cancel_page.title("Cancel Ticket -BookMyBus")
+    cancel_page.wm_iconbitmap(icon_path)
     cancel_page.config(padx=50, pady=50)
 
     ### Logo
@@ -412,6 +418,7 @@ def check_status_page(check_pnr_page):
 
     ### Status Window
     check_pnr_page.title("Check Status -BookMyBus")
+    check_pnr_page.wm_iconbitmap(icon_path)
     check_pnr_page.config(padx=50, pady=50)
 
     ### Logo
